@@ -5,22 +5,24 @@ import NewTask from "./components/NewTask/NewTask";
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  const fetchTaskHandler = (taskData) => {
-    const loadedTasks = [];
-
-    for (const taskKey in taskData) {
-      loadedTasks.push({ id: taskKey, text: taskData[taskKey].text });
-    }
-    setTasks(loadedTasks);
-  };
-  const {isLoading,error,sendRequest:fetchTasks} = useHttp(
-    { url: "https://react-https-bfa5d-default-rtdb.firebaseio.com/tasks.json" },
-    fetchTaskHandler
-  );
+  const { isLoading, error, sendRequest: fetchTasks } = useHttp();
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    const fetchTaskHandler = (taskData) => {
+      const loadedTasks = [];
+
+      for (const taskKey in taskData) {
+        loadedTasks.push({ id: taskKey, text: taskData[taskKey].text });
+      }
+      setTasks(loadedTasks);
+    };
+    fetchTasks(
+      {
+        url: "https://react-https-bfa5d-default-rtdb.firebaseio.com/tasks.json",
+      },
+      fetchTaskHandler
+    );
+  }, [fetchTasks]);
 
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
@@ -30,7 +32,7 @@ function App() {
     <React.Fragment>
       <NewTask onAddTask={taskAddHandler} />
       <Tasks
-        items={tasks} 
+        items={tasks}
         loading={isLoading}
         error={error}
         onFetch={fetchTasks}
